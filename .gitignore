@@ -1,0 +1,13 @@
+# Build output and IDE files
+target/
+.idea/
+*.iml
+.vscode/
+
+# Frontend (for later)
+node_modules/
+dist/
+
+# Secrets and local settings
+.env
+*.log
