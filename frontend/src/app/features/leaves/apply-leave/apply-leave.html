@@ -1,0 +1,103 @@
+<h1>Apply for Leave</h1>
+<p class="caption">Submit a new leave request</p>
+
+@if (loadingReference()) {
+  <div class="loading">
+    <mat-spinner diameter="32" />
+  </div>
+} @else {
+  <div class="apply-layout">
+    <form class="apply-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <mat-form-field>
+        <mat-label>Leave type</mat-label>
+        <mat-select formControlName="leaveTypeId">
+          @for (type of leaveTypes(); track type.id) {
+            <mat-option [value]="type.id">{{ type.leaveTypeName }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.leaveTypeId.hasError('required') && form.controls.leaveTypeId.touched) {
+          <mat-error>Leave type is required</mat-error>
+        }
+      </mat-form-field>
+
+      @if (selectedBalance(); as balance) {
+        <p class="balance-hint caption">
+          {{ balance.remainingDays }} of {{ balance.totalDays }} days remaining this year
+        </p>
+      }
+
+      <div class="date-row">
+        <mat-form-field>
+          <mat-label>Start date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate" [min]="today" />
+          <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+          <mat-datepicker #startPicker />
+          @if (form.controls.startDate.hasError('required') && form.controls.startDate.touched) {
+            <mat-error>Start date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>End date</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate"
+                 [min]="minEndDate()" [readonly]="form.controls.isHalfDay.value" />
+          <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+          <mat-datepicker #endPicker />
+          @if (form.controls.endDate.hasError('required') && form.controls.endDate.touched) {
+            <mat-error>End date is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      @if (form.hasError('dateRange')) {
+        <p class="form-error">End date cannot be before start date</p>
+      }
+
+      <mat-slide-toggle formControlName="isHalfDay">Half-day leave</mat-slide-toggle>
+
+      @if (form.controls.isHalfDay.value) {
+        <mat-form-field>
+          <mat-label>Session</mat-label>
+          <mat-select formControlName="halfDaySession">
+            <mat-option value="FIRST_HALF">First half</mat-option>
+            <mat-option value="SECOND_HALF">Second half</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (form.hasError('halfDayRange')) {
+          <p class="form-error">A half-day leave must be for a single date</p>
+        }
+      }
+
+      <mat-form-field>
+        <mat-label>Reason</mat-label>
+        <textarea matInput formControlName="reason" rows="3"></textarea>
+        @if (form.controls.reason.hasError('required') && form.controls.reason.touched) {
+          <mat-error>Reason is required</mat-error>
+        } @else if (form.controls.reason.hasError('maxlength')) {
+          <mat-error>Reason must be at most 500 characters</mat-error>
+        } @else if (form.controls.reason.hasError('server'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button type="submit" class="submit" [disabled]="submitting()">
+        @if (submitting()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Submit Application
+        }
+      </button>
+    </form>
+
+    <aside class="preview-card">
+      <h3>Summary</h3>
+      @if (previewDays(); as days) {
+        <p class="preview-days num">{{ days }} <span class="caption">day(s)</span></p>
+        <p class="caption">Estimated working days, excluding weekends. Public holidays are applied on submission.</p>
+      } @else {
+        <p class="caption">Select valid dates to see an estimate.</p>
+      }
+    </aside>
+  </div>
+}

@@ -10,6 +10,7 @@ import com.company.leavemanagement.dto.response.ErrorResponse;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -107,6 +108,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleTypeMismatch(
             MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
         String message = "Invalid value for parameter '" + exception.getName() + "'";
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request, null);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException exception, HttpServletRequest request) {
+
+        String message = "Required parameter '" + exception.getParameterName() + "' is missing";
         return buildResponse(HttpStatus.BAD_REQUEST, message, request, null);
     }
 }

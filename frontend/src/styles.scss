@@ -1,0 +1,72 @@
+@use '@angular/material' as mat;
+@use './styles/tokens';
+@use './styles/toasts';
+
+html {
+  color-scheme: light;
+
+  @include mat.theme((
+    color: mat.$violet-palette,
+    Typography: Inter,
+    density: 0
+  ));
+
+  @include mat.theme-overrides((
+    primary: #4F46E5,
+    on-primary: #FFFFFF,
+    primary-container: #E0E7FF,
+    on-primary-container: #312E81,
+    secondary: #0EA5E9,
+    on-secondary: #FFFFFF,
+    surface: #FFFFFF,
+    on-surface: #0F172A,
+    on-surface-variant: #64748B,
+    background: #F8FAFC,
+    on-background: #0F172A,
+    outline: #CBD5E1,
+    outline-variant: #E2E8F0,
+    error: #DC2626,
+    on-error: #FFFFFF
+  ))
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+h1 { 
+  font-size: var(--font-size-h1); 
+}
+h2 { 
+  font-size: var(--font-size-h2); 
+}
+h3 { 
+  font-size: var(--font-size-h3); 
+}
+
+.caption {
+   font-size: var(--font-size-caption);
+   color: var(--color-text-muted);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,38 @@
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.history-table {
+  width: 100%;
+  margin-top: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.reason-cell {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.filter-bar mat-form-field {
+  width: 180px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: var(--space-1);
+  padding-top: 8px;
+}

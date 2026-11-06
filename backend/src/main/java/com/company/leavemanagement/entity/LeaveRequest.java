@@ -114,4 +114,24 @@ public class LeaveRequest extends BaseEntity {
     public LocalDateTime getReviewedAt() {
         return reviewedAt;
     }
+
+    public void approve(Employee reviewer) {
+        this.leaveStatus = LeaveStatus.APPROVED;
+        this.reviewedBy = reviewer;
+        this.reviewedAt = LocalDateTime.now();
+    }
+
+    public void reject(Employee reviewer, String comment) {
+        this.leaveStatus = LeaveStatus.REJECTED;
+        this.reviewedBy = reviewer;
+        this.reviewComment = comment;
+        this.reviewedAt = LocalDateTime.now();
+    }
+
+    public void cancel() {
+        this.leaveStatus = LeaveStatus.CANCELLED;
+    }
+
+
+
 }

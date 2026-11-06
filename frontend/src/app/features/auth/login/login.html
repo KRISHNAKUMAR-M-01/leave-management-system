@@ -1,0 +1,79 @@
+<div class="login-page">
+    <aside class="brand-panel">
+        <div class="brand">
+            <span class="brand-mark"><mat-icon>event_available</mat-icon></span>
+            <span class="brand-name">Leave Management</span>
+        </div>
+
+        <div class="brand-content">
+            <p class="headline">Manage time off, simply.</p>
+            <ul class="feature-list">
+                <li>
+                    <span class="feature-icon"><mat-icon>event_note</mat-icon></span>
+                    <span>Apply for leave and track every request</span>
+                </li>
+                <li>
+                    <span class="feature-icon"><mat-icon>task_alt</mat-icon></span>
+                    <span>Quick approvals for managers</span>
+                </li>
+                <li>
+                    <span class="feature-icon"><mat-icon>pie_chart</mat-icon></span>
+                    <span>Leave balances always up to date</span>
+                </li>
+            </ul>
+        </div>
+
+        <p class="panel-footer">Employee Leave Management System</p>
+    </aside>
+
+    <main class="form-panel">
+        <div class="mobile-brand">
+            <span class="brand-mark"><mat-icon>event_available</mat-icon></span>
+            <span class="brand-name">Leave Management</span>
+        </div>
+
+        <form class="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="login-heading">
+                <h1>Sign in</h1>
+                <p class="caption">Use your work email and password</p>
+            </div>
+
+            @if (errorMessage(); as message) {
+            <div class="form-error" role="alert">{{ message }}</div>
+            }
+
+            <mat-form-field>
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="email" autocomplete="username" />
+                @if (form.controls.email.hasError('required')) {
+                <mat-error>Email is required</mat-error>
+                } @else if (form.controls.email.hasError('email')) {
+                <mat-error>Enter a valid email address</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Password</mat-label>
+                <input matInput formControlName="password" autocomplete="current-password"
+                    [type]="hidePassword() ? 'password' : 'text'" />
+                <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
+                    [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'">
+                    <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
+                @if (form.controls.password.hasError('required')) {
+                <mat-error>Password is required</mat-error>
+                }
+            </mat-form-field>
+
+            <button mat-flat-button class="submit" type="submit" [disabled]="submitting()">
+                @if (submitting()) {
+                <mat-spinner diameter="20" />
+                } @else {
+                Sign in
+                }
+            </button>
+
+            <p class="help-text caption">Need access? Contact your administrator.</p>
+        </form>
+    </main>
+</div>

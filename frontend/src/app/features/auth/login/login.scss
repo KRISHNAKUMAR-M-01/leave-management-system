@@ -1,0 +1,146 @@
+.login-page {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  min-height: 100vh;
+}
+
+.brand-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-6);
+  color: #fff;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.35), transparent 55%), var(--color-ink);
+}
+
+.brand,
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+.brand-name {
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+}
+
+.headline {
+  max-width: 320px;
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-h1);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.feature-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.feature-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.panel-footer {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-surface);
+}
+
+.mobile-brand {
+  display: none;
+  color: var(--color-text);
+}
+
+.login-form {
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-heading {
+  display: grid;
+  gap: 4px;
+  margin-bottom: var(--space-1);
+}
+
+.form-error {
+    margin-bottom: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    color: var(--status-rejected-text);
+    background: var(--status-rejected-bg);
+    border-radius: var(--radius-md);
+}
+
+.submit {
+  width: 100%;
+  height: 48px;
+  margin-top: var(--space-1);
+  transition: background-color var(--transition);
+  --mat-progress-spinner-active-indicator-color: #fff;
+}
+
+.submit:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.help-text {
+  margin: var(--space-1) 0 0;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    display: none;
+  }
+
+  .mobile-brand {
+    display: flex;
+  }
+}

@@ -1,0 +1,65 @@
+<div class="shell" [class.collapsed]="collapsed()" [class.mobile-open]="mobileOpen()">
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <span class="brand-mark"><mat-icon>event_available</mat-icon></span>
+      <span class="brand-name">Leave Management</span>
+    </div>
+
+    <nav class="nav">
+      @for (item of navItems(); track item.path) {
+      <a class="nav-link" [routerLink]="item.path" routerLinkActive="active"
+        [attr.title]="collapsed() ? item.label : null" (click)="closeMobileSidebar()">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+      }
+    </nav>
+  </aside>
+
+  <div class="backdrop" (click)="closeMobileSidebar()"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button mat-icon-button type="button" aria-label="Toggle navigation" (click)="toggleSidebar()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="topbar-title">
+        <span class="mobile-brand">Leave Management</span>
+        <span class="page-title">{{ pageTitle() }}</span>
+      </div>
+
+      <div class="spacer"></div>
+
+      <button type="button" class="user-button" [matMenuTriggerFor]="userMenu">
+        <span class="avatar">{{ initials() }}</span>
+        <span class="user-text">
+          <span class="user-name">{{ user()?.fullName }}</span>
+          <span class="caption">{{ roleLabel() }}</span>
+        </span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before" class="user-menu-panel">
+        <div class="menu-header" (click)="$event.stopPropagation()">
+          <span class="avatar avatar-lg">{{ initials() }}</span>
+          <span class="menu-user-text">
+            <span class="user-name">{{ user()?.fullName }}</span>
+            <span class="caption">{{ user()?.email }}</span>
+          </span>
+        </div>
+
+        <mat-divider />
+
+        <button mat-menu-item type="button" class="logout-item" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Log out</span>
+        </button>
+      </mat-menu>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

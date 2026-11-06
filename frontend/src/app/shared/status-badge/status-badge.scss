@@ -1,0 +1,36 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge-pending {
+  color: var(--status-pending-text);
+  background: var(--status-pending-bg);
+}
+
+.badge-approved {
+  color: var(--status-approved-text);
+  background: var(--status-approved-bg);
+}
+
+.badge-rejected {
+  color: var(--status-rejected-text);
+  background: var(--status-rejected-bg);
+}
+
+.badge-cancelled {
+  color: var(--status-cancelled-text);
+  background: var(--status-cancelled-bg);
+}

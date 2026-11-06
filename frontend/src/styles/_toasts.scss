@@ -1,0 +1,11 @@
+.toast-success {
+  --mat-snack-bar-container-color: var(--status-approved-bg);
+  --mat-snack-bar-supporting-text-color: var(--status-approved-text);
+  --mat-snack-bar-button-color: var(--status-approved-text);
+}
+
+.toast-error {
+  --mat-snack-bar-container-color: var(--status-rejected-bg);
+  --mat-snack-bar-supporting-text-color: var(--status-rejected-text);
+  --mat-snack-bar-button-color: var(--status-rejected-text);
+}

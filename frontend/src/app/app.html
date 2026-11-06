@@ -1,0 +1,15 @@
+<main class="demo">
+  <h1>Employee Leave Management</h1>
+  <p class="caption">Theme check</p>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" />
+  </mat-form-field>
+
+  <button mat-flat-button>Primary action</button>
+  <button mat-stroked-button>Secondary action</button>
+  <button mat-flat-button (click)="testBackend()">Test backend connection</button>
+</main>
+
+<router-outlet></router-outlet>
