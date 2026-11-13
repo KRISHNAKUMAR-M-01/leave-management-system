@@ -1,0 +1,28 @@
+mat-dialog-content {
+  padding: 8px 24px 16px 24px !important;
+  min-width: 380px;
+  max-width: 500px;
+}
+
+.dialog-subtitle {
+  margin: 0 0 16px 0;
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.full-width {
+  width: 100%;
+}
+
+h2[mat-dialog-title] {
+  margin: 0;
+  padding: 20px 24px 8px 24px;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+mat-dialog-actions {
+  padding: 12px 24px 20px 24px !important;
+  gap: 12px;
+}

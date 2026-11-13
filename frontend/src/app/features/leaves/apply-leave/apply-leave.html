@@ -7,7 +7,7 @@
   </div>
 } @else {
   <div class="apply-layout">
-    <form class="apply-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <form class="apply-form" [formGroup]="form" #formDirective="ngForm" (ngSubmit)="submit(formDirective)" novalidate>
       <mat-form-field>
         <mat-label>Leave type</mat-label>
         <mat-select formControlName="leaveTypeId">
@@ -80,6 +80,45 @@
           <mat-error>{{ message }}</mat-error>
         }
       </mat-form-field>
+
+      @if (requiresMedicalDocument()) {
+        <div class="doc-upload-box">
+          <div class="doc-upload-header">
+            <mat-icon class="doc-icon">medical_information</mat-icon>
+            <div>
+              <p class="doc-title">Medical Document Required</p>
+              <p class="caption">Sick leave of 3 or more days requires a PDF, JPG, or PNG (max 5 MB).</p>
+            </div>
+          </div>
+
+          <input
+            #docInput
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            hidden
+            (change)="onFileSelected($event)"
+          />
+
+          @if (selectedFile(); as file) {
+            <div class="selected-file-row">
+              <mat-icon>description</mat-icon>
+              <span class="file-name">{{ file.name }}</span>
+              <button mat-icon-button type="button" (click)="clearFile(docInput)" aria-label="Remove file">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          } @else {
+            <button mat-stroked-button type="button" (click)="docInput.click()">
+              <mat-icon>upload_file</mat-icon>
+              Upload Document
+            </button>
+          }
+
+          @if (fileError(); as err) {
+            <p class="form-error doc-error">{{ err }}</p>
+          }
+        </div>
+      }
 
       <button mat-flat-button type="submit" class="submit" [disabled]="submitting()">
         @if (submitting()) {

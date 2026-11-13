@@ -1,0 +1,24 @@
+@if (loading()) {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+} @else if (employee(); as employee) {
+  <div class="detail-header">
+    <a mat-icon-button routerLink="/employees"><mat-icon>arrow_back</mat-icon></a>
+    <h1>{{ employee.fullName }}</h1>
+    <span [class]="employee.active ? 'status-active' : 'status-inactive'">
+      {{ employee.active ? 'Active' : 'Inactive' }}
+    </span>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-row"><span class="label">Email</span><span>{{ employee.email }}</span></div>
+    <div class="detail-row"><span class="label">Phone</span><span>{{ employee.phone }}</span></div>
+    <div class="detail-row"><span class="label">Department</span><span>{{ employee.departmentName }}</span></div>
+    <div class="detail-row"><span class="label">Designation</span><span>{{ employee.designation }}</span></div>
+    <div class="detail-row"><span class="label">Role</span><span>{{ employee.roleName }}</span></div>
+    <div class="detail-row"><span class="label">Joining Date</span><span>{{ employee.joiningDate | date:'mediumDate' }}</span></div>
+    <div class="detail-row">
+      <span class="label">Reporting Manager</span>
+      <span>{{ employee.managerName ?? 'None' }}</span>
+    </div>
+  </div>
+}

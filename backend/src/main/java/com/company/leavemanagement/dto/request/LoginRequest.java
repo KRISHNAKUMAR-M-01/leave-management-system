@@ -1,6 +1,4 @@
 package com.company.leavemanagement.dto.request;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Add Public Holiday</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" id="holidayForm" (ngSubmit)="submit()" class="holiday-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Holiday Name</mat-label>
+      <input matInput formControlName="holidayName" placeholder="e.g. New Year's Day" />
+      @if (form.controls.holidayName.hasError('required')) {
+        <mat-error>Holiday name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Holiday Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="holidayDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      @if (form.controls.holidayDate.hasError('required')) {
+        <mat-error>Holiday date is required</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">Cancel</button>
+  <button mat-flat-button color="primary" type="submit" form="holidayForm">Add Holiday</button>
+</mat-dialog-actions>
+

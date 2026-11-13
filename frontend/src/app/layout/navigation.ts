@@ -21,6 +21,12 @@ export const NAV_ITEMS: NavItem[] = [
         roles: ['MANAGER', 'EMPLOYEE'] 
     },
     { 
+        label: 'Company Leaves', 
+        icon: 'manage_history', 
+        path: '/leaves/company', 
+        roles: ['ADMIN'] 
+    },
+    { 
         label: 'My Leave History', 
         icon: 'history', 
         path: '/leaves/history', 
@@ -33,9 +39,21 @@ export const NAV_ITEMS: NavItem[] = [
         roles: ['ADMIN', 'MANAGER'] 
     },
     { 
+        label: 'Team Calendar', 
+        icon: 'date_range', 
+        path: '/team-calendar', 
+        roles: ['MANAGER'] 
+    },
+    { 
         label: 'Employees', 
         icon: 'groups', 
         path: '/employees', 
         roles: ['ADMIN'] 
+    },
+    { 
+        label: 'Public Holidays', 
+        icon: 'calendar_month', 
+        path: '/holidays', 
+        roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] 
     },
 ];

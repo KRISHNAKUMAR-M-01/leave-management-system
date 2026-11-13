@@ -1,0 +1,78 @@
+<div class="header-row">
+  <div>
+    <h1>Public Holidays</h1>
+    <p class="caption">Official company holidays observed throughout the year</p>
+  </div>
+
+  <div class="header-controls">
+    <mat-form-field appearance="outline" class="year-select">
+      <mat-label>Year</mat-label>
+      <mat-select [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)">
+        @for (yr of availableYears(); track yr) {
+          <mat-option [value]="yr">{{ yr }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (isAdmin()) {
+      <button mat-flat-button color="primary" (click)="openAddDialog()">
+        <mat-icon>add</mat-icon>
+        Add Holiday
+      </button>
+    }
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+} @else if (holidays().length === 0) {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">event_busy</mat-icon>
+    <h3>No holidays for {{ selectedYear() }}</h3>
+    <p class="caption">
+      @if (isAdmin()) {
+        Click "Add Holiday" above to configure public holidays for this calendar year.
+      } @else {
+        No holidays have been scheduled for this year yet.
+      }
+    </p>
+  </div>
+} @else {
+  <div class="table-container">
+    <table mat-table [dataSource]="holidays()" class="holiday-table">
+      <ng-container matColumnDef="holidayDate">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.holidayDate | date:'MMM d, y' }}</strong>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="dayOfWeek">
+        <th mat-header-cell *matHeaderCellDef>Day</th>
+        <td mat-cell *matCellDef="let row" class="day-cell">
+          {{ row.holidayDate | date:'EEEE' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="holidayName">
+        <th mat-header-cell *matHeaderCellDef>Holiday Name</th>
+        <td mat-cell *matCellDef="let row">{{ row.holidayName }}</td>
+      </ng-container>
+
+      @if (isAdmin()) {
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header"></th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <button mat-icon-button (click)="deleteHoliday(row)" matTooltip="Delete holiday" class="delete-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+      }
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+    </table>
+  </div>
+}
+

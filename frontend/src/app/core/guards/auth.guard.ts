@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+// authGuard ensures only logged-in users can enter a protected route
 export const authGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
     const router = inject(Router);
@@ -9,6 +10,7 @@ export const authGuard: CanActivateFn = () => {
     return authService.isLoggedIn() ? true : router.createUrlTree(['/login']);
 }
 
+// guestGuard ensures logged-in users cannot access public auth pages (redirecting them away to /dashboard)
 export const guestGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
     const router = inject(Router);

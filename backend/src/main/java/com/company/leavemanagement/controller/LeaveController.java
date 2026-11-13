@@ -10,7 +10,11 @@ import com.company.leavemanagement.service.LeaveHistoryService;
 import com.company.leavemanagement.service.LeaveRequestService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -42,12 +48,34 @@ public class LeaveController {
         this.leaveHistoryService = leaveHistoryService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public LeaveRequestResponse applyForLeave(
             @AuthenticationPrincipal UserDetails currentUser,
             @Valid @RequestBody LeaveApplyRequest request) {
         return leaveRequestService.applyForLeave(currentUser.getUsername(), request);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public LeaveRequestResponse applyForLeaveWithDocument(
+            @AuthenticationPrincipal UserDetails currentUser,
+            @Valid @RequestPart("request") LeaveApplyRequest request,
+            @RequestPart(value = "medicalDocument", required = false) MultipartFile medicalDocument) {
+        return leaveRequestService.applyForLeave(currentUser.getUsername(), request, medicalDocument);
+    }
+
+    @GetMapping("/{id}/medical-document")
+    public ResponseEntity<byte[]> getMedicalDocument(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        LeaveRequestService.MedicalDocumentData doc =
+                leaveRequestService.getMedicalDocument(id, currentUser.getUsername());
+        MediaType mediaType = MediaType.parseMediaType(doc.contentType());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        headers.setContentDisposition(ContentDisposition.inline().filename(doc.fileName()).build());
+        return new ResponseEntity<>(doc.data(), headers, HttpStatus.OK);
     }
 
     @GetMapping("/my")

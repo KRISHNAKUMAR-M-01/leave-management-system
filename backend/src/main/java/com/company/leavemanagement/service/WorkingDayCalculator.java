@@ -3,7 +3,6 @@ package com.company.leavemanagement.service;
 import com.company.leavemanagement.entity.PublicHoliday;
 import com.company.leavemanagement.repository.PublicHolidayRepository;
 import org.springframework.stereotype.Component;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;

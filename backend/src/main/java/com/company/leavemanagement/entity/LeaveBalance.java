@@ -3,7 +3,6 @@ package com.company.leavemanagement.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.Year;
 
 @Entity
 @Table(name = "leave_balances")

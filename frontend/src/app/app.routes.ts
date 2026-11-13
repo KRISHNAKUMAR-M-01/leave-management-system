@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,47 @@ export const routes: Routes = [
         path: 'leaves/history',
         loadComponent: () =>
           import('./features/leaves/leave-history/leave-history').then((m) => m.LeaveHistory),
+      },
+      {
+        path: 'leaves/company',
+        canActivate: [roleGuard('ADMIN')],
+        loadComponent: () =>
+          import('./features/leaves/company-leaves/company-leaves').then((m) => m.CompanyLeaves),
+      },
+      {
+        path: 'leaves/approvals',
+        canActivate: [roleGuard('ADMIN', 'MANAGER')],
+        loadComponent: () =>
+          import('./features/leaves/pending-approvals/pending-approvals').then(
+            (m) => m.PendingApprovals,
+          ),
+      },
+      {
+        path: 'team-calendar',
+        canActivate: [roleGuard('MANAGER')],
+        loadComponent: () =>
+          import('./features/leaves/team-calendar-page/team-calendar-page').then(
+            (m) => m.TeamCalendarPage,
+          ),
+      },
+      {
+        path: 'employees',
+        canActivate: [roleGuard('ADMIN')],
+        loadComponent: () =>
+          import('./features/employees/employee-list/employee-list').then((m) => m.EmployeeList),
+      },
+      {
+        path: 'employees/:id',
+        canActivate: [roleGuard('ADMIN')],
+        loadComponent: () =>
+          import('./features/employees/employee-detail/employee-detail').then(
+            (m) => m.EmployeeDetail,
+          ),
+      },
+      {
+        path: 'holidays',
+        loadComponent: () =>
+          import('./features/holidays/holiday-list/holiday-list').then((m) => m.HolidayList),
       },
       {
         path: 'unauthorized',

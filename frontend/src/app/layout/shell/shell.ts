@@ -22,7 +22,7 @@ const MAX_INITIALS = 2;
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   selector: 'app-shell',
   styleUrl: './shell.scss',
@@ -34,9 +34,11 @@ export class Shell {
 
   protected readonly user = this.authService.currentUser;
 
-  protected readonly navItems = computed(() => NAV_ITEMS.filter((item) => this.authService.hasRole(...item.roles)),);
+  protected readonly navItems = computed(() =>
+    NAV_ITEMS.filter((item) => this.authService.hasRole(...item.roles)),
+  );
 
-    private readonly router = inject(Router);
+  private readonly router = inject(Router);
 
   protected readonly pageTitle = toSignal(
     this.router.events.pipe(
@@ -47,26 +49,27 @@ export class Shell {
   );
 
   private resolvePageTitle(): string {
-    return NAV_ITEMS.find((item) => this.router.url.startsWith(item.path))?.label ?? '';
+    return this.navItems().find((item) => this.router.url.startsWith(item.path))?.label ?? '';
   }
 
   protected readonly roleLabel = computed(() => {
     const role = this.user()?.role;
     return role ? ROLE_LABELS[role] : '';
-  })
+  });
 
   protected readonly initials = computed(() => {
     const name = this.user()?.fullName ?? '';
-    return name.split(' ')
-    .filter(Boolean)
-    .slice(0, MAX_INITIALS)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, MAX_INITIALS)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
   });
 
   protected readonly isMobile = toSignal(
     this.breakpointObserver.observe(MOBILE_QUERY).pipe(map((state) => state.matches)),
-    { initialValue: this.breakpointObserver.isMatched(MOBILE_QUERY)},
+    { initialValue: this.breakpointObserver.isMatched(MOBILE_QUERY) },
   );
 
   protected readonly collapsed = signal(false);
@@ -84,8 +87,7 @@ export class Shell {
     this.mobileOpen.set(false);
   }
 
-  protected logout():void {
+  protected logout(): void {
     this.authService.logout();
   }
-
 }

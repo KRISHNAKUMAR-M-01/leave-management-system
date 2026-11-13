@@ -12,8 +12,8 @@ export interface LoginResponse {
   role: Role;
 }
 
-export const ROLE_LABELS: Record<Role, String> = {
+export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrator',
-  MANAGER: 'Managers',
+  MANAGER: 'Manager',
   EMPLOYEE: 'Employee',
-}
+};

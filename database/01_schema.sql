@@ -3,7 +3,6 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
 USE leave_management;
-DROP DATABASE leave_management;
 
 CREATE TABLE roles (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -120,16 +119,18 @@ CREATE TABLE leave_requests (
     half_day_session VARCHAR(15) NULL,
     reason VARCHAR(500) NOT NULL,
     leave_status VARCHAR(20) NOT NULL,
-    reviewed_by BIGINT NOT NULL,
-    review_comment VARCHAR(500) NOT NULL,
-    reviewed_at TIMESTAMP NOT NULL,
+    reviewed_by BIGINT NULL,
+    review_comment VARCHAR(500) NULL,
+    reviewed_at TIMESTAMP NULL,
+    medical_document_name VARCHAR(255) NULL,
+    medical_document_type VARCHAR(100) NULL,
+    medical_document LONGBLOB NULL,
     
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
     ON UPDATE CURRENT_TIMESTAMP,
     
     CONSTRAINT pk_leave_requests PRIMARY KEY(id),
-    CONSTRAINT uk_leave_requests_leave_status UNIQUE(leave_status),
     
     CONSTRAINT fk_leave_requests_employee_id FOREIGN KEY(employee_id) REFERENCES employees(id),
     CONSTRAINT fk_leave_requests_leave_type_id FOREIGN KEY(leave_type_id) REFERENCES leave_types(id),
@@ -152,6 +153,3 @@ CREATE TABLE leave_requests (
     CONSTRAINT chk_leave_requests_rejection_comment CHECK (leave_status <> 'REJECTED' OR review_comment IS NOT NULL)
 );
 
-SHOW CREATE TABLE leave_requests;
-SHOW TABLES;
-DESC leave_requests;

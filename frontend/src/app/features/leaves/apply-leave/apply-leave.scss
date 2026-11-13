@@ -43,6 +43,69 @@
   margin-top: var(--space-1);
 }
 
+.doc-upload-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--color-background);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.doc-upload-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  .doc-icon {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .doc-title {
+    margin: 0;
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .caption {
+    margin: 2px 0 0;
+  }
+}
+
+.selected-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .file-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.doc-error {
+  margin: 0;
+}
+
 .preview-card {
   height: fit-content;
   padding: var(--space-3);

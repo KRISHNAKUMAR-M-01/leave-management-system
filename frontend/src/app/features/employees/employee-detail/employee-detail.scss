@@ -1,0 +1,35 @@
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-5);
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.detail-card {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 480px;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.label {
+  color: var(--color-text-muted);
+}
+.status-active {
+  color: var(--status-approved-text);
+}
+.status-inactive {
+  color: var(--status-cancelled-text);
+}

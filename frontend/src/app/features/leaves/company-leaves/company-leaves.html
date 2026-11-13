@@ -1,0 +1,268 @@
+<div class="page-header">
+  <div>
+    <h1>Company Leave History</h1>
+    <p class="caption">Audit leave requests and balance allocations across all personnel</p>
+  </div>
+</div>
+
+<!-- ══════════════ HIGH-LEVEL METRICS ══════════════ -->
+<section class="stat-grid">
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-indigo">description</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ statusCounts().total }}</span>
+      <span class="stat-label">Total Requests</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-green">check_circle</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ statusCounts().approved }}</span>
+      <span class="stat-label">Approved Requests</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-amber">pending_actions</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ statusCounts().pending }}</span>
+      <span class="stat-label">Pending Approvals</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-rose">cancel</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ statusCounts().rejected + statusCounts().cancelled }}</span>
+      <span class="stat-label">Rejected & Cancelled</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ EMPLOYEE BALANCE AUDIT CARD (WHEN EMPLOYEE SELECTED) ══════════════ -->
+@if (selectedEmployee(); as emp) {
+  <div class="card employee-balance-card mb">
+    <div class="balance-card-header">
+      <div class="emp-profile-group">
+        <div class="emp-avatar">{{ emp.fullName.charAt(0).toUpperCase() }}</div>
+        <div>
+          <h3 class="emp-title">{{ emp.fullName }} — Leave Balance Audit</h3>
+          <p class="caption">{{ emp.designation }} · {{ emp.departmentName }}</p>
+        </div>
+      </div>
+
+      <div class="balance-overall-badge">
+        <span class="overall-label">Overall Usage</span>
+        <span class="overall-val">
+          <strong>{{ totalUsed() }}</strong> / {{ totalAllocated() }} days used
+          <span class="overall-sub">({{ totalRemaining() }} remaining)</span>
+        </span>
+      </div>
+
+      <button mat-stroked-button type="button" class="clear-emp-btn" (click)="clearEmployee()">
+        <mat-icon>close</mat-icon> Clear Employee
+      </button>
+    </div>
+
+    @if (balancesLoading()) {
+      <div class="balance-loading"><mat-spinner diameter="24" /></div>
+    } @else if (employeeBalances().length === 0) {
+      <p class="caption">No leave balances found for this employee.</p>
+    } @else {
+      <div class="balance-breakdown-grid">
+        @for (b of employeeBalances(); track b.leaveTypeId) {
+          <div class="balance-item-card">
+            <div class="balance-item-header">
+              <span class="b-type">{{ b.leaveTypeName }}</span>
+              <span class="b-days"><strong>{{ b.usedDays }}</strong> / {{ b.totalDays }} used</span>
+            </div>
+
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                [style.width.%]="b.totalDays > 0 ? (b.usedDays / b.totalDays * 100) : 0"
+              ></div>
+            </div>
+
+            <span class="b-remaining">{{ b.remainingDays }} days remaining</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- ══════════════ FILTERS & AUTOCOMPLETE SEARCH ══════════════ -->
+<div class="filter-bar">
+  <!-- Typeahead Employee Search -->
+  <mat-form-field appearance="outline" class="employee-search-field">
+    <mat-label>Search by Employee</mat-label>
+    <mat-icon matPrefix>person_search</mat-icon>
+    <input
+      matInput
+      [formControl]="employeeSearchControl"
+      [matAutocomplete]="auto"
+      placeholder="Type employee name..."
+    />
+    @if (selectedEmployee() || employeeSearchControl.value) {
+      <button mat-icon-button matSuffix (click)="clearEmployee()" matTooltip="Clear search">
+        <mat-icon>clear</mat-icon>
+      </button>
+    }
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="displayEmployeeFn"
+      (optionSelected)="onEmployeeSelected($event)"
+    >
+      @for (emp of employeeSuggestions(); track emp.id) {
+        <mat-option [value]="emp">
+          <div class="autocomplete-option">
+            <span class="option-name">{{ emp.fullName }}</span>
+            <span class="option-dept">{{ emp.departmentName }} · {{ emp.designation }}</span>
+          </div>
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <form class="filter-controls" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option [value]="null">All Statuses</mat-option>
+        <mat-option value="PENDING">Pending</mat-option>
+        <mat-option value="APPROVED">Approved</mat-option>
+        <mat-option value="REJECTED">Rejected</mat-option>
+        <mat-option value="CANCELLED">Cancelled</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Leave Type</mat-label>
+      <mat-select formControlName="leaveTypeId">
+        <mat-option [value]="null">All Types</mat-option>
+        @for (type of leaveTypes(); track type.id) {
+          <mat-option [value]="type.id">{{ type.leaveTypeName }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>From Date</mat-label>
+      <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+      <mat-datepicker #fromPicker />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>To Date</mat-label>
+      <input matInput [matDatepicker]="toPicker" formControlName="toDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+      <mat-datepicker #toPicker />
+    </mat-form-field>
+
+    <div class="filter-actions">
+      <button mat-flat-button type="submit">Filter</button>
+      <button mat-stroked-button type="button" (click)="clearFilters()">Reset</button>
+    </div>
+  </form>
+</div>
+
+<!-- ══════════════ TABLE SECTION ══════════════ -->
+@if (loading()) {
+  <div class="loading"><mat-spinner diameter="36" /></div>
+} @else if (requests().length === 0) {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">search_off</mat-icon>
+    <h3>No leave requests found</h3>
+    <p class="caption">Try adjusting your employee search or filter criteria.</p>
+  </div>
+} @else {
+  <div class="table-container">
+    <table mat-table [dataSource]="requests()" class="history-table">
+      <ng-container matColumnDef="employeeName">
+        <th mat-header-cell *matHeaderCellDef>Employee</th>
+        <td mat-cell *matCellDef="let row">
+          <div class="emp-cell">
+            <span class="emp-name">{{ row.employeeName }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="leaveType">
+        <th mat-header-cell *matHeaderCellDef>Leave Type</th>
+        <td mat-cell *matCellDef="let row">{{ row.leaveTypeName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dates">
+        <th mat-header-cell *matHeaderCellDef class="dates-header">Dates</th>
+        <td mat-cell *matCellDef="let row" class="dates-cell">
+          <div class="date-range">
+            @if (row.startDate === row.endDate) {
+              {{ row.startDate | date:'MMM d, y' }}
+            } @else {
+              {{ row.startDate | date:'MMM d' }} – {{ row.endDate | date:'MMM d, y' }}
+            }
+          </div>
+          @if (row.halfDay) {
+            <span class="half-day-chip">{{ row.halfDaySession === 'FIRST_HALF' ? '1st Half' : '2nd Half' }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="days">
+        <th mat-header-cell *matHeaderCellDef>Days</th>
+        <td mat-cell *matCellDef="let row" class="num">
+          <strong>{{ row.totalDays }}</strong>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <div class="status-cell-content">
+            <app-status-badge [status]="row.leaveStatus" />
+            @if (row.leaveStatus === 'REJECTED' && row.reviewComment) {
+              <span
+                class="rejection-chip"
+                [matTooltip]="(row.reviewedByName ? 'By ' + row.reviewedByName + ': ' : '') + row.reviewComment"
+              >
+                <mat-icon>info</mat-icon> Reason
+              </span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="reason">
+        <th mat-header-cell *matHeaderCellDef>Reason</th>
+        <td mat-cell *matCellDef="let row" class="reason-cell">
+          <span class="reason-text" [matTooltip]="row.reason">{{ row.reason }}</span>
+          @if (row.hasMedicalDocument) {
+            <button
+              type="button"
+              class="doc-chip-btn"
+              (click)="viewMedicalDocument(row.id)"
+              [matTooltip]="'View medical document: ' + (row.medicalDocumentName || 'Document')"
+            >
+              <mat-icon>description</mat-icon> View Doc
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    [length]="totalElements()"
+    [pageSize]="PAGE_SIZE"
+    [pageIndex]="currentPage()"
+    [hidePageSize]="true"
+    (page)="onPageChange($event)"
+  />
+}
+

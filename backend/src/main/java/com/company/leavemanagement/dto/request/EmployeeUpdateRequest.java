@@ -1,8 +1,6 @@
 package com.company.leavemanagement.dto.request;
 
 import jakarta.validation.constraints.*;
-import org.springframework.data.repository.query.Param;
-
 import java.time.LocalDate;
 
 public record EmployeeUpdateRequest(
@@ -12,6 +10,7 @@ public record EmployeeUpdateRequest(
 
         @NotBlank(message = "Email is required")
         @Email(message = "Email format is invalid")
+        @Pattern(regexp = "^(?i).*@codeboard\\.com$", message = "Email must belong to @codeboard.com domain")
         @Size(max = 150, message = "Email must be at most 150 characters")
         String email,
 

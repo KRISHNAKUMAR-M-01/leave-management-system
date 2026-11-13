@@ -180,8 +180,13 @@ public class EmployeeService {
         if (!SORTABLE_FIELDS.contains(sortBy)) {
             throw new BusinessRuleException("Cannot sort by '" + sortBy + "'");
         }
+        String jpaField = switch (sortBy) {
+            case "departmentName" -> "department.departmentName";
+            case "roleName" -> "role.roleName";
+            default -> sortBy;
+        };
         Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sort = Sort.by(sortDirection, sortBy).and(Sort.by(Sort.Direction.ASC, "id"));
+        Sort sort = Sort.by(sortDirection, jpaField).and(Sort.by(Sort.Direction.ASC, "id"));
 
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);

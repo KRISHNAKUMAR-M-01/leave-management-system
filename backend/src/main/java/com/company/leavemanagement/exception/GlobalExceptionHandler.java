@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
@@ -27,7 +26,8 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, HttpServletRequest request, Map<String, String> fieldErrors){
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, HttpServletRequest request,
+            Map<String, String> fieldErrors) {
         ErrorResponse body = new ErrorResponse(
                 LocalDateTime.now(),
                 status.value(),
@@ -43,7 +43,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationErrors(
             MethodArgumentNotValidException exception, HttpServletRequest request) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(fieldError -> fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage()));
+        exception.getBindingResult().getFieldErrors()
+                .forEach(fieldError -> fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage()));
 
         return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors);
     }
@@ -79,7 +80,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied (
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
             AccessDeniedException exception, HttpServletRequest request) {
         return buildResponse(HttpStatus.FORBIDDEN, "You do not have permission to perform this action", request, null);
     }
@@ -87,15 +88,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(
             HttpRequestMethodNotSupportedException exception, HttpServletRequest request) {
-        return  buildResponse(HttpStatus.METHOD_NOT_ALLOWED, "This HTTP method is not supported for this URL", request, null);
+        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, "This HTTP method is not supported for this URL", request,
+                null);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(
             Exception exception, HttpServletRequest request) {
-        log.error("Unexpected error at {}",request.getRequestURI(), exception);
+        log.error("Unexpected error at {}", request.getRequestURI(), exception);
 
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.", request, null);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.", request,
+                null);
     }
 
     @ExceptionHandler(InsufficientAuthenticationException.class)
@@ -112,10 +115,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException exception, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException exception,
+            HttpServletRequest request) {
 
         String message = "Required parameter '" + exception.getParameterName() + "' is missing";
         return buildResponse(HttpStatus.BAD_REQUEST, message, request, null);
     }
 }
-

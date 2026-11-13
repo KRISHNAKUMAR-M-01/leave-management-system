@@ -1,0 +1,21 @@
+<div class="ring-card" [attr.title]="remaining() + ' remaining of ' + total() + ' total days'">
+  <div class="ring-wrapper">
+    <svg class="ring" viewBox="0 0 80 80">
+      <circle class="ring-track" cx="40" cy="40" [attr.r]="radius" />
+      <circle
+        [class]="lowBalance() ? 'ring-fill ring-fill--low' : 'ring-fill'"
+        cx="40"
+        cy="40"
+        [attr.r]="radius"
+        [attr.stroke-dasharray]="dashArray()"
+        [attr.stroke-dashoffset]="0"
+      />
+    </svg>
+    <div class="ring-text">
+      <span class="ring-value num">{{ remaining() }}</span>
+      <span class="caption">left</span>
+    </div>
+  </div>
+  <p class="ring-label">{{ label() }}</p>
+  <span class="ring-subcaption">{{ used() }} / {{ total() }} used</span>
+</div>

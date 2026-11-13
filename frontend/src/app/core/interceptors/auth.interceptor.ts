@@ -4,7 +4,9 @@ import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 
+// This interceptor adds the Authorization header with the JWT token to outgoing HTTP requests if the user is logged in
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
+
     const authService = inject(AuthService);
 
     const isOwnApi = request.url.startsWith(environment.apiUrl);

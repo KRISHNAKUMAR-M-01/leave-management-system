@@ -1,0 +1,102 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Employee' : 'Add Employee' }}</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="form" class="employee-form">
+        <mat-form-field class="full-width">
+            <mat-label>Full name</mat-label>
+            <input matInput formControlName="fullName" />
+            @if (form.controls.fullName.hasError('required') && form.controls.fullName.touched) {
+            <mat-error>Full name is required</mat-error>
+            } @else if (form.controls.fullName.hasError('server'); as message) {
+            <mat-error>{{ message }}</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+            @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+            <mat-error>Enter a valid email address</mat-error>
+            } @else if (form.controls.email.hasError('pattern') && form.controls.email.touched) {
+            <mat-error>Email must end with @codeboard.com</mat-error>
+            } @else if (form.controls.email.hasError('server'); as message) {
+            <mat-error>{{ message }}</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone" />
+            @if (form.controls.phone.hasError('pattern') && form.controls.phone.touched) {
+            <mat-error>Enter a valid 10-digit mobile number</mat-error>
+            }
+        </mat-form-field>
+
+        @if (!isEditMode) {
+        <mat-form-field class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" />
+            @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <mat-error>Password is required</mat-error>
+            } @else if (form.controls.password.hasError('minlength')) {
+            <mat-error>Password must be at least 8 characters</mat-error>
+            } @else if (form.controls.password.hasError('pattern')) {
+            <mat-error>Must include 1 uppercase, 1 number, and 1 symbol</mat-error>
+            } @else if (form.controls.password.hasError('server'); as message) {
+            <mat-error>{{ message }}</mat-error>
+            }
+        </mat-form-field>
+        }
+
+        <mat-form-field>
+            <mat-label>Department</mat-label>
+            <mat-select formControlName="departmentId">
+                @for (department of departments(); track department.id) {
+                <mat-option [value]="department.id">{{ department.departmentName }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Designation</mat-label>
+            <input matInput formControlName="designation" />
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="roleName">
+                @for (role of roles; track role) {
+                <mat-option [value]="role">{{ role }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Joining date</mat-label>
+            <input matInput [matDatepicker]="joiningPicker" formControlName="joiningDate" />
+            <mat-datepicker-toggle matIconSuffix [for]="joiningPicker" />
+            <mat-datepicker #joiningPicker />
+        </mat-form-field>
+
+        @if (form.controls.roleName.value === 'EMPLOYEE') {
+        <mat-form-field class="full-width">
+            <mat-label>Reporting manager</mat-label>
+            <mat-select formControlName="managerId">
+                @for (manager of managers(); track manager.id) {
+                <mat-option [value]="manager.id">{{ manager.fullName }}</mat-option>
+                }
+            </mat-select>
+            @if (form.controls.managerId.hasError('required') && form.controls.managerId.touched) {
+            <mat-error>A reporting manager is required</mat-error>
+            }
+        </mat-form-field>
+        }
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button [disabled]="submitting()" (click)="submit()">
+        {{ isEditMode ? 'Save Changes' : 'Create Employee' }}
+    </button>
+</mat-dialog-actions>

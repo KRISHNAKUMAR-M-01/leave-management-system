@@ -22,10 +22,12 @@ public record LeaveRequestResponse(
         HalfDaySession halfDaySession,
         String reason,
         LeaveStatus leaveStatus,
-        String reviewedByname,
+        String reviewedByName,
         String reviewComment,
         LocalDateTime reviewedAt,
-        LocalDateTime createdAt) {
+        LocalDateTime createdAt,
+        boolean hasMedicalDocument,
+        String medicalDocumentName) {
 
     public static LeaveRequestResponse from(LeaveRequest request) {
         Employee reviewer = request.getReviewedBy();
@@ -46,6 +48,8 @@ public record LeaveRequestResponse(
                 reviewer != null ? reviewer.getFullName() : null,
                 request.getReviewComment(),
                 request.getReviewedAt(),
-                request.getCreatedAt());
+                request.getCreatedAt(),
+                request.hasMedicalDocument(),
+                request.getMedicalDocumentName());
     }
 }

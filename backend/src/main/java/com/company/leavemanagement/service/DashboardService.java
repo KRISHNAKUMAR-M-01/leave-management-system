@@ -1,6 +1,7 @@
 package com.company.leavemanagement.service;
 
 import com.company.leavemanagement.dto.response.AdminDashboardResponse;
+import com.company.leavemanagement.dto.response.EmployeeResponse;
 import com.company.leavemanagement.dto.response.LeaveRequestResponse;
 import com.company.leavemanagement.dto.response.ManagerDashboardResponse;
 import com.company.leavemanagement.entity.Employee;
@@ -42,6 +43,15 @@ public class DashboardService {
         return new ManagerDashboardResponse(
                 leaveRequestRepository.countForManager(LeaveStatus.PENDING, manager),
                 employeeRepository.countByManagerAndActiveTrue(manager));
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployeeResponse> getTeamMembers(String email) {
+        Employee manager = findEmployeeByEmail(email);
+        return employeeRepository.findByManagerAndActiveTrueOrderByFullNameAsc(manager)
+                .stream()
+                .map(EmployeeResponse::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)

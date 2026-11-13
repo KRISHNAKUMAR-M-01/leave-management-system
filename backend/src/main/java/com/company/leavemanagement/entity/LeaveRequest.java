@@ -53,6 +53,16 @@ public class LeaveRequest extends BaseEntity {
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
+    @Column(name = "medical_document_name", length = 255)
+    private String medicalDocumentName;
+
+    @Column(name = "medical_document_type", length = 100)
+    private String medicalDocumentType;
+
+    @Lob
+    @Column(name = "medical_document", columnDefinition = "LONGBLOB")
+    private byte[] medicalDocument;
+
     protected LeaveRequest() {}
 
     public LeaveRequest(Employee employee, LeaveType leaveType, LocalDate startDate, LocalDate endDate, BigDecimal totalDays, HalfDaySession halfDaySession, String reason) {
@@ -113,6 +123,28 @@ public class LeaveRequest extends BaseEntity {
 
     public LocalDateTime getReviewedAt() {
         return reviewedAt;
+    }
+
+    public String getMedicalDocumentName() {
+        return medicalDocumentName;
+    }
+
+    public String getMedicalDocumentType() {
+        return medicalDocumentType;
+    }
+
+    public byte[] getMedicalDocument() {
+        return medicalDocument;
+    }
+
+    public boolean hasMedicalDocument() {
+        return medicalDocument != null && medicalDocument.length > 0;
+    }
+
+    public void attachMedicalDocument(String name, String contentType, byte[] data) {
+        this.medicalDocumentName = name;
+        this.medicalDocumentType = contentType;
+        this.medicalDocument = data;
     }
 
     public void approve(Employee reviewer) {

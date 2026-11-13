@@ -1,5 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
 import {
+  FormGroupDirective,
   NonNullableFormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
@@ -14,7 +17,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
 import { HalfDaySession, LeaveBalance, LeaveType } from '../../../core/models/leave.model';
 import { LeaveService } from '../../../core/services/leave.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -41,14 +43,16 @@ export class ApplyLeave implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly leaveService = inject(LeaveService);
   private readonly notification = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly today = new Date();
-  protected readonly minEndDate = computed(() => this.form?.controls.startDate.value ?? this.today);
+  protected readonly today = new Date(new Date().setHours(0, 0, 0, 0));
 
   protected readonly leaveTypes = signal<LeaveType[]>([]);
   protected readonly balances = signal<LeaveBalance[]>([]);
   protected readonly loadingReference = signal(true);
   protected readonly submitting = signal(false);
+  protected readonly selectedFile = signal<File | null>(null);
+  protected readonly fileError = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.group(
     {
@@ -62,27 +66,92 @@ export class ApplyLeave implements OnInit {
     { validators: [dateRangeValidator, halfDaySingleDateValidator] },
   );
 
+  private readonly formValue = toSignal(
+    this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
+    { initialValue: this.form.getRawValue() },
+  );
+
+  protected readonly minEndDate = computed(() => this.formValue().startDate ?? this.today);
+
   protected readonly selectedBalance = computed(() => {
-    const leaveTypeId = this.form.controls.leaveTypeId.value;
+    const leaveTypeId = this.formValue().leaveTypeId;
     return this.balances().find((balance) => balance.leaveTypeId === leaveTypeId) ?? null;
   });
 
-  protected readonly previewDays = computed(() => this.calculatePreviewDays());
+  protected readonly previewDays = computed(() => {
+    const { startDate, endDate, isHalfDay } = this.formValue();
+    return this.calculatePreviewDays(startDate ?? null, endDate ?? null, Boolean(isHalfDay));
+  });
+
+  protected readonly requiresMedicalDocument = computed(() => {
+    const typeId = this.formValue().leaveTypeId;
+    const leaveType = this.leaveTypes().find((t) => t.id === typeId);
+    const days = this.previewDays();
+    return Boolean(
+      leaveType &&
+        leaveType.leaveTypeName.trim().toLowerCase() === 'sick' &&
+        days !== null &&
+        days >= 3,
+    );
+  });
 
   ngOnInit(): void {
     this.loadReferenceData();
 
-    this.form.controls.isHalfDay.valueChanges.subscribe((isHalfDay) => {
-      if (isHalfDay) {
-        this.form.controls.halfDaySession.setValue('FIRST_HALF');
-        this.form.controls.endDate.setValue(this.form.controls.startDate.value);
-      } else {
-        this.form.controls.halfDaySession.setValue(null);
-      }
-    });
+    this.form.controls.isHalfDay.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isHalfDay) => {
+        if (isHalfDay) {
+          this.form.controls.halfDaySession.setValue('FIRST_HALF');
+          this.form.controls.endDate.setValue(this.form.controls.startDate.value);
+        } else {
+          this.form.controls.halfDaySession.setValue(null);
+        }
+      });
+
+    this.form.controls.startDate.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((startDate) => {
+        if (this.form.controls.isHalfDay.value) {
+          this.form.controls.endDate.setValue(startDate);
+        }
+      });
   }
 
-  protected submit(): void {
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      this.selectedFile.set(null);
+      this.fileError.set('Only PDF, JPG, or PNG files are allowed');
+      input.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.selectedFile.set(null);
+      this.fileError.set('File must be 5 MB or smaller');
+      input.value = '';
+      return;
+    }
+
+    this.fileError.set(null);
+    this.selectedFile.set(file);
+  }
+
+  protected clearFile(input?: HTMLInputElement): void {
+    this.selectedFile.set(null);
+    this.fileError.set(null);
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  protected submit(formDirective?: FormGroupDirective): void {
     if (this.submitting()) {
       return;
     }
@@ -90,22 +159,34 @@ export class ApplyLeave implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    if (this.requiresMedicalDocument() && !this.selectedFile()) {
+      this.fileError.set('A medical document is required for sick leave of 3 or more days');
+      return;
+    }
 
     const value = this.form.getRawValue();
     this.submitting.set(true);
 
     this.leaveService
-      .applyForLeave({
-        leaveTypeId: value.leaveTypeId!,
-        startDate: toIsoDate(value.startDate!),
-        endDate: toIsoDate(value.endDate!),
-        reason: value.reason.trim(),
-        halfDaySession: value.isHalfDay ? value.halfDaySession : null,
-      })
+      .applyForLeave(
+        {
+          leaveTypeId: value.leaveTypeId!,
+          startDate: toIsoDate(value.startDate!),
+          endDate: toIsoDate(value.endDate!),
+          reason: value.reason.trim(),
+          halfDaySession: value.isHalfDay ? value.halfDaySession : null,
+        },
+        this.requiresMedicalDocument() ? this.selectedFile() : null,
+      )
       .subscribe({
         next: () => {
           this.notification.success('Leave application submitted');
-          this.form.reset({ isHalfDay: false, halfDaySession: null, reason: '' });
+          this.clearFile();
+          if (formDirective) {
+            formDirective.resetForm({ isHalfDay: false, halfDaySession: null, reason: '' });
+          } else {
+            this.form.reset({ isHalfDay: false, halfDaySession: null, reason: '' });
+          }
           this.loadBalances();
           this.submitting.set(false);
         },
@@ -117,8 +198,11 @@ export class ApplyLeave implements OnInit {
       });
   }
 
-  private calculatePreviewDays(): number | null {
-    const { startDate, endDate, isHalfDay } = this.form.getRawValue();
+  private calculatePreviewDays(
+    startDate: Date | null,
+    endDate: Date | null,
+    isHalfDay: boolean,
+  ): number | null {
     if (!startDate || !endDate || startDate > endDate) {
       return null;
     }

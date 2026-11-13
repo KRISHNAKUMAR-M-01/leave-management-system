@@ -1,7 +1,6 @@
 package com.company.leavemanagement.controller;
 
 import com.company.leavemanagement.dto.response.LeaveTypeResponse;
-import com.company.leavemanagement.entity.LeaveType;
 import com.company.leavemanagement.service.LeaveTypeService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

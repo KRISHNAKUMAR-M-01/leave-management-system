@@ -1,0 +1,219 @@
+<div class="calendar-card">
+  <!-- ══════════════ HEADER CONTROLS ══════════════ -->
+  <div class="calendar-header">
+    <div class="header-title-group">
+      <div class="title-with-icon">
+        <mat-icon class="header-icon">event_note</mat-icon>
+        <div>
+          <h3 class="calendar-title">Team Leave Calendar</h3>
+          <p class="calendar-subtitle">
+            Overview of scheduled team leaves & workflow coverage
+          </p>
+        </div>
+      </div>
+      @if (currentMonthLeaveCount() > 0) {
+        <span class="coverage-badge">
+          <mat-icon>group</mat-icon> {{ currentMonthLeaveCount() }} leave{{ currentMonthLeaveCount() > 1 ? 's' : '' }} this month
+        </span>
+      } @else {
+        <span class="coverage-badge coverage-badge--full">
+          <mat-icon>check_circle</mat-icon> 100% team coverage
+        </span>
+      }
+    </div>
+
+    <!-- Month Navigation -->
+    <div class="nav-controls">
+      <button mat-icon-button type="button" (click)="prevMonth()" matTooltip="Previous Month">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <span class="current-month-text">{{ monthYearLabel() }}</span>
+
+      <button mat-icon-button type="button" (click)="nextMonth()" matTooltip="Next Month">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <button mat-stroked-button type="button" class="today-btn" (click)="goToToday()">
+        Today
+      </button>
+    </div>
+
+    <!-- Filter Pills & Legend -->
+    <div class="filter-group">
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="statusFilter() === 'ALL'"
+        (click)="setFilter('ALL')"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        class="filter-pill filter-pill--approved"
+        [class.active]="statusFilter() === 'APPROVED'"
+        (click)="setFilter('APPROVED')"
+      >
+        <span class="dot dot-approved"></span> Approved
+      </button>
+      <button
+        type="button"
+        class="filter-pill filter-pill--pending"
+        [class.active]="statusFilter() === 'PENDING'"
+        (click)="setFilter('PENDING')"
+      >
+        <span class="dot dot-pending"></span> Pending
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════ CALENDAR GRID ══════════════ -->
+  <div class="calendar-container">
+    @if (loading()) {
+      <div class="calendar-loading-overlay">
+        <mat-spinner diameter="36" />
+      </div>
+    }
+
+    <!-- Weekday Headers -->
+    <div class="weekdays-grid">
+      @for (wd of weekDays; track wd) {
+        <div class="weekday-cell" [class.weekend-header]="wd === 'Sat' || wd === 'Sun'">
+          {{ wd }}
+        </div>
+      }
+    </div>
+
+    <!-- Month Days Grid -->
+    <div class="days-grid">
+      @for (day of calendarDays(); track day.dateStr) {
+        <div
+          class="day-cell"
+          [class.outside-month]="!day.isCurrentMonth"
+          [class.is-today]="day.isToday"
+          [class.is-selected]="selectedDate() === day.dateStr"
+          [class.is-weekend]="day.isWeekend"
+          [class.has-leaves]="day.leaves.length > 0"
+          [class.has-holiday]="!!day.holiday"
+          (click)="selectDate(day.dateStr)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="day.dateStr"
+        >
+          <!-- Day number header -->
+          <div class="day-cell-header">
+            <span class="day-number" [class.today-badge]="day.isToday">
+              {{ day.dayNumber }}
+            </span>
+
+            @if (day.holiday) {
+              <span class="holiday-indicator" [matTooltip]="day.holiday.holidayName">
+                <mat-icon>celebration</mat-icon>
+              </span>
+            }
+          </div>
+
+          <!-- Leave chips on this day -->
+          <div class="day-leaves">
+            @for (leave of day.leaves.slice(0, 2); track leave.id) {
+              <div
+                class="leave-chip"
+                [class.chip-approved]="leave.leaveStatus === 'APPROVED'"
+                [class.chip-pending]="leave.leaveStatus === 'PENDING'"
+                [matTooltip]="leave.employeeName + ' · ' + leave.leaveTypeName + ' (' + (leave.leaveStatus | titlecase) + ')'"
+              >
+                <span class="chip-dot"></span>
+                <span class="chip-name">{{ leave.employeeName }}</span>
+                @if (leave.halfDay) {
+                  <span class="chip-half">½</span>
+                }
+              </div>
+            }
+
+            @if (day.leaves.length > 2) {
+              <span class="more-leaves-badge">
+                +{{ day.leaves.length - 2 }} more
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══════════════ SELECTED DAY DETAILS PANEL ══════════════ -->
+  <div class="selected-day-panel">
+    <div class="panel-header">
+      <div class="panel-title-group">
+        <mat-icon class="panel-icon">event</mat-icon>
+        <span class="panel-title">
+          {{ selectedDate() | date:'EEEE, MMMM d, y' }}
+        </span>
+        @if (selectedDayData()?.isToday) {
+          <span class="today-tag">Today</span>
+        }
+      </div>
+
+      @if (selectedDayData()?.holiday; as hol) {
+        <div class="panel-holiday-badge">
+          <mat-icon>celebration</mat-icon>
+          <span>{{ hol.holidayName }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Leaves list for selected date -->
+    @if (selectedDayData()?.leaves?.length; as count) {
+      <div class="selected-leaves-list">
+        @for (leave of selectedDayData()!.leaves; track leave.id) {
+          <div class="selected-leave-item">
+            <div class="leave-avatar">
+              {{ leave.employeeName.charAt(0).toUpperCase() }}
+            </div>
+            <div class="leave-item-info">
+              <div class="leave-item-top">
+                <span class="emp-name">{{ leave.employeeName }}</span>
+                <span
+                  class="status-pill"
+                  [class.status-pill--approved]="leave.leaveStatus === 'APPROVED'"
+                  [class.status-pill--pending]="leave.leaveStatus === 'PENDING'"
+                >
+                  {{ leave.leaveStatus | titlecase }}
+                </span>
+              </div>
+              <div class="leave-item-meta">
+                <span class="meta-type">{{ leave.leaveTypeName }}</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-dates">{{ leave.startDate | date:'MMM d' }} – {{ leave.endDate | date:'MMM d' }}</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-duration">{{ leave.totalDays }} day{{ leave.totalDays > 1 ? 's' : '' }}</span>
+                @if (leave.halfDay) {
+                  <span class="meta-dot">·</span>
+                  <span class="meta-half">Half Day ({{ leave.halfDaySession === 'FIRST_HALF' ? 'Morning' : 'Afternoon' }})</span>
+                }
+              </div>
+              @if (leave.reason) {
+                <p class="leave-item-reason">"{{ leave.reason }}"</p>
+              }
+            </div>
+
+            @if (leave.leaveStatus === 'PENDING') {
+              <div class="leave-item-action">
+                <a mat-stroked-button routerLink="/leaves/approvals" class="review-btn">
+                  Review
+                </a>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="selected-empty-state">
+        <mat-icon class="check-icon">verified_user</mat-icon>
+        <span class="empty-text">No team members scheduled on leave on this date. Full coverage available.</span>
+      </div>
+    }
+  </div>
+</div>
+

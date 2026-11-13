@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-
 import { AuthService } from '../../../core/services/auth.service';
 import { getErrorMessage } from '../../../core/utils/error-message';
 
@@ -28,6 +27,7 @@ export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  // Create the login form with email and password validation.
   protected readonly form = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
@@ -37,10 +37,12 @@ export class Login {
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
+  // Toggle password visibility
   protected togglePasswordVisibility(): void {
     this.hidePassword.update((hidden) => !hidden);
   }
 
+  // Validate the form and submit the login request.
   protected submit(): void {
     if (this.submitting()) {
       return;

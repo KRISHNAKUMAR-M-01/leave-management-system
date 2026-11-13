@@ -18,13 +18,15 @@ public class JwtService {
 
     private final SecretKey signingKey;
     private final long expirationMinutes;
-
+    
     public JwtService(@Value("${app.jwt.secret}") String secret,
                       @Value("${app.jwt.expiration-minutes}") long expirationMinutes) {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMinutes = expirationMinutes;
     }
 
+    // Generates a JWT token with the given email and role as claims. 
+    // The token is signed with the secret key and has an expiration time based on the configured expiration minutes.
     public String generateToken(String email, String role) {
         Instant now = Instant.now();
 
@@ -37,6 +39,7 @@ public class JwtService {
                 .compact();
     }
 
+    // Parses the JWT token and returns its claims. If the token is invalid or expired, it throws a JwtException.
     private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(signingKey)
@@ -45,6 +48,7 @@ public class JwtService {
                 .getPayload();
     }
 
+    // Validates the JWT token by parsing its claims. If the token is valid, it returns true; otherwise, it returns false.
     public boolean isTokenValid(String token) {
         try {
             parseClaims(token);
@@ -54,10 +58,12 @@ public class JwtService {
         }
     }
 
+    // Extracts the email (subject) from the JWT token by parsing its claims.
     public String extractEmail(String token) {
         return parseClaims(token).getSubject();
     }
 
+    // Extracts the role from the JWT token by parsing its claims.
     public String extractRole(String token) {
         return parseClaims(token).get("role", String.class);
     }

@@ -11,11 +11,16 @@ public record EmployeeCreateRequest(
 
         @NotBlank(message = "Email is required")
         @Email(message = "Email format is invalid")
+        @Pattern(regexp = "^(?i).*@codeboard\\.com$", message = "Email must belong to @codeboard.com domain")
         @Size(max = 150, message = "Email must be at most 150 characters")
         String email,
 
         @NotBlank(message = "Password is required")
         @Size(min = 8, max = 64, message = "Password must be 8 to 64 characters")
+        @Pattern(
+                regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,64}$",
+                message = "Password must have at least 1 uppercase letter, 1 number, and 1 symbol"
+        )
         String password,
 
         @NotBlank(message = "Phone is required")

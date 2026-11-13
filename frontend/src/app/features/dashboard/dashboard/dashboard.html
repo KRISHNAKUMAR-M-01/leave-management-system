@@ -1,4 +1,310 @@
-<h1>Dashboard</h1>
-<p class="caption">
-  Welcome, {{ authService.currentUser()?.fullName }}. Departments loaded: {{ departmentCount() }}
-</p>
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="caption">Welcome back, {{ authService.currentUser()?.fullName }}</p>
+  </div>
+  @if (authService.hasRole('ADMIN')) {
+  <div class="header-actions">
+    <a mat-stroked-button routerLink="/employees">
+      <mat-icon>people</mat-icon> Manage Staff
+    </a>
+    <a mat-stroked-button routerLink="/leaves/approvals">
+      <mat-icon>pending_actions</mat-icon> Approvals
+    </a>
+    <button mat-stroked-button type="button" [disabled]="generatingBalances()" (click)="generateBalances()">
+      @if (generatingBalances()) {
+      <mat-spinner diameter="16" />
+      } @else {
+      <mat-icon>sync</mat-icon>
+      }
+      Generate Balances
+    </button>
+  </div>
+  }
+</div>
+
+@if (loading()) {
+<div class="loading"><mat-spinner diameter="36" /></div>
+
+} @else if (adminData(); as admin) {
+<!-- Admin view -->
+<section class="stat-grid">
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-green">how_to_reg</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ admin.activeEmployees }} <span class="stat-sub">/ {{ admin.totalEmployees
+          }}</span></span>
+      <span class="stat-label">Active Staff</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-amber">pending_actions</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">
+        {{ admin.leavesByStatus['PENDING'] ?? 0 }}
+        @if (admin.pendingManagerApprovals > 0) {
+        <span class="stat-sub">({{ admin.pendingManagerApprovals }} manager)</span>
+        }
+      </span>
+      <span class="stat-label">Pending Requests</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-blue">corporate_fare</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ admin.employeesByDepartment.length }}</span>
+      <span class="stat-label">Active Departments</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-indigo">event_available</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ admin.leavesByStatus['APPROVED'] ?? 0 }}</span>
+      <span class="stat-label">Approved in {{ admin.year }}</span>
+    </div>
+  </div>
+</section>
+
+@if (admin.pendingManagerApprovals > 0) {
+<div class="card action-prompt mb">
+  <mat-icon class="prompt-icon">notification_important</mat-icon>
+  <div>
+    <p class="prompt-title">You have {{ admin.pendingManagerApprovals }} manager leave request{{
+      admin.pendingManagerApprovals > 1 ? 's' : '' }} awaiting approval</p>
+    <p class="caption">Managers report directly to Admin for leave reviews.</p>
+  </div>
+  <a mat-flat-button routerLink="/leaves/approvals">Review Now</a>
+</div>
+}
+
+<div class="dashboard-grid">
+  <div class="dashboard-main">
+    <div class="card">
+      <h3 class="card-title">Department Allocation</h3>
+      <div class="dept-list">
+        @for (dept of admin.employeesByDepartment; track dept.label) {
+        <div class="dept-item">
+          <div class="dept-info">
+            <span class="dept-name">{{ dept.label }}</span>
+            <span class="dept-count num">{{ dept.count }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"
+              [style.width.%]="admin.activeEmployees > 0 ? (dept.count / admin.activeEmployees * 100) : 0"></div>
+          </div>
+        </div>
+        }
+        @if (admin.employeesByDepartment.length === 0) {
+        <p class="caption">No department data available.</p>
+        }
+      </div>
+    </div>
+
+    <div class="card mt">
+      <h3 class="card-title">Leave Status Overview — {{ admin.year }}</h3>
+      <div class="status-list">
+        @for (entry of admin.leavesByStatus | keyvalue; track entry.key) {
+        <div class="status-row">
+          <span class="status-dot" [class]="'dot-' + entry.key.toLowerCase()"></span>
+          <span class="status-name">{{ entry.key | titlecase }}</span>
+          <span class="status-count num">{{ entry.value }}</span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-side">
+    <div class="card holiday-card" routerLink="/holidays" role="button" tabindex="0">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <mat-icon class="card-icon">calendar_month</mat-icon>
+          <h3 class="card-title">Upcoming Holidays</h3>
+        </div>
+        <span class="view-all-link">View all <mat-icon>arrow_forward</mat-icon></span>
+      </div>
+
+      @if (upcomingHolidays().length === 0) {
+      <p class="caption empty-holiday-text">No upcoming holidays scheduled.</p>
+      } @else {
+      <div class="holiday-mini-list">
+        @for (h of upcomingHolidays(); track h.id) {
+        <div class="holiday-mini-item">
+          <div class="holiday-date-badge">
+            <span class="badge-month">{{ h.holidayDate | date:'MMM' }}</span>
+            <span class="badge-day">{{ h.holidayDate | date:'dd' }}</span>
+          </div>
+          <div class="holiday-info">
+            <span class="holiday-name">{{ h.holidayName }}</span>
+            <span class="holiday-weekday">{{ h.holidayDate | date:'EEEE' }}</span>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+} @else if (managerData(); as manager) {
+<!-- Manager view -->
+<section class="stat-grid">
+  <div class="stat-card">
+    <mat-icon class="stat-icon icon-amber">pending_actions</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ manager.pendingApprovals }}</span>
+      <span class="stat-label">Pending Approvals</span>
+    </div>
+  </div>
+
+  <div class="stat-card clickable-stat" (click)="openTeamMembers()" role="button" tabindex="0"
+    matTooltip="Click to view team members">
+    <mat-icon class="stat-icon icon-blue">group</mat-icon>
+    <div class="stat-body">
+      <span class="stat-value">{{ manager.teamSize }}</span>
+      <span class="stat-label">Team Members</span>
+    </div>
+    <mat-icon class="stat-action-icon">chevron_right</mat-icon>
+  </div>
+</section>
+
+@if (manager.pendingApprovals > 0) {
+<div class="card mt action-prompt">
+  <mat-icon class="prompt-icon">notification_important</mat-icon>
+  <div>
+    <p class="prompt-title">You have {{ manager.pendingApprovals }} pending leave request{{ manager.pendingApprovals > 1
+      ? 's' : '' }}</p>
+    <p class="caption">Review and take action on your team's requests.</p>
+  </div>
+  <a mat-flat-button routerLink="/leaves/approvals">Review Now</a>
+</div>
+}
+
+<div class="card mt action-prompt">
+  <mat-icon class="prompt-icon">date_range</mat-icon>
+  <div>
+    <p class="prompt-title">Team Leave Calendar</p>
+    <p class="caption">View scheduled absences across your team to balance workloads and plan ahead.</p>
+  </div>
+  <a mat-flat-button routerLink="/team-calendar">View Calendar</a>
+</div>
+
+<div class="dashboard-grid mt">
+  <div class="dashboard-main">
+    <div class="card">
+      <h3 class="card-title">My Leave Balances</h3>
+      @if (balances().length === 0) {
+      <p class="caption">No leave balances found for this year.</p>
+      } @else {
+      <div class="balance-rings">
+        @for (b of balances(); track b.leaveTypeId) {
+        <app-balance-ring [label]="b.leaveTypeName" [used]="b.usedDays" [total]="b.totalDays" />
+        }
+      </div>
+      }
+    </div>
+
+    <div class="card mt action-prompt">
+      <mat-icon class="prompt-icon">add_circle_outline</mat-icon>
+      <div>
+        <p class="prompt-title">Need time off?</p>
+        <p class="caption">Submit a leave request quickly from the Apply Leave page.</p>
+      </div>
+      <a mat-flat-button routerLink="/leaves/apply">Apply Now</a>
+    </div>
+  </div>
+
+  <div class="dashboard-side">
+    <div class="card holiday-card" routerLink="/holidays" role="button" tabindex="0">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <mat-icon class="card-icon">calendar_month</mat-icon>
+          <h3 class="card-title">Upcoming Holidays</h3>
+        </div>
+        <span class="view-all-link">View all <mat-icon>arrow_forward</mat-icon></span>
+      </div>
+
+      @if (upcomingHolidays().length === 0) {
+      <p class="caption empty-holiday-text">No upcoming holidays scheduled.</p>
+      } @else {
+      <div class="holiday-mini-list">
+        @for (h of upcomingHolidays(); track h.id) {
+        <div class="holiday-mini-item">
+          <div class="holiday-date-badge">
+            <span class="badge-month">{{ h.holidayDate | date:'MMM' }}</span>
+            <span class="badge-day">{{ h.holidayDate | date:'dd' }}</span>
+          </div>
+          <div class="holiday-info">
+            <span class="holiday-name">{{ h.holidayName }}</span>
+            <span class="holiday-weekday">{{ h.holidayDate | date:'EEEE' }}</span>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+} @else {
+<!-- Employee view -->
+<div class="dashboard-grid">
+  <div class="dashboard-main">
+    <div class="card">
+      <h3 class="card-title">My Leave Balances</h3>
+      @if (balances().length === 0) {
+      <p class="caption">No leave balances found for this year.</p>
+      } @else {
+      <div class="balance-rings">
+        @for (b of balances(); track b.leaveTypeId) {
+        <app-balance-ring [label]="b.leaveTypeName" [used]="b.usedDays" [total]="b.totalDays" />
+        }
+      </div>
+      }
+    </div>
+
+    <div class="card mt action-prompt">
+      <mat-icon class="prompt-icon">add_circle_outline</mat-icon>
+      <div>
+        <p class="prompt-title">Need time off?</p>
+        <p class="caption">Submit a leave request quickly from the Apply Leave page.</p>
+      </div>
+      <a mat-flat-button routerLink="/leaves/apply">Apply Now</a>
+    </div>
+  </div>
+
+  <div class="dashboard-side">
+    <div class="card holiday-card" routerLink="/holidays" role="button" tabindex="0">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <mat-icon class="card-icon">calendar_month</mat-icon>
+          <h3 class="card-title">Upcoming Holidays</h3>
+        </div>
+        <span class="view-all-link">View all <mat-icon>arrow_forward</mat-icon></span>
+      </div>
+
+      @if (upcomingHolidays().length === 0) {
+      <p class="caption empty-holiday-text">No upcoming holidays scheduled.</p>
+      } @else {
+      <div class="holiday-mini-list">
+        @for (h of upcomingHolidays(); track h.id) {
+        <div class="holiday-mini-item">
+          <div class="holiday-date-badge">
+            <span class="badge-month">{{ h.holidayDate | date:'MMM' }}</span>
+            <span class="badge-day">{{ h.holidayDate | date:'dd' }}</span>
+          </div>
+          <div class="holiday-info">
+            <span class="holiday-name">{{ h.holidayName }}</span>
+            <span class="holiday-weekday">{{ h.holidayDate | date:'EEEE' }}</span>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}

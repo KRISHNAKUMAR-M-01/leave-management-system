@@ -41,6 +41,8 @@ export interface LeaveRequestSummary {
   reviewComment: string | null;
   reviewedAt: string | null;
   createdAt: string;
+  hasMedicalDocument?: boolean;
+  medicalDocumentName?: string | null;
 }
 
 export interface LeaveHistoryFilter {
@@ -50,4 +52,30 @@ export interface LeaveHistoryFilter {
     toDate?: string;
     page?: number;
     size?: number;
+    employeeId?: number;
+}
+
+export interface LabelAmount {
+  label: string;
+  amount: number;
+}
+
+export interface LabelCount {
+  label: string;
+  count: number;
+}
+
+export interface AdminDashboard {
+  totalEmployees: number;
+  activeEmployees: number;
+  pendingManagerApprovals: number;
+  year: number;
+  leavesByStatus: Record<string, number>;
+  approvedDaysByLeaveType: LabelAmount[];
+  employeesByDepartment: LabelCount[];
+}
+
+export interface ManagerDashboard {
+  pendingApprovals: number;
+  teamSize: number;
 }

@@ -25,6 +25,11 @@ public class LeaveBalanceController {
         return leaveBalanceService.getMyBalances(currentUser.getUsername());
     }
 
+    @GetMapping("/employee/{id}")
+    public List<LeaveBalanceResponse> getEmployeeBalances(@PathVariable Long id) {
+        return leaveBalanceService.getBalancesByEmployeeId(id);
+    }
+
     @PostMapping("/generate/{year}")
     public Map<String, Integer> generateBalances(@PathVariable int year) {
         return Map.of("created", leaveBalanceService.createBalancesForYear(year));

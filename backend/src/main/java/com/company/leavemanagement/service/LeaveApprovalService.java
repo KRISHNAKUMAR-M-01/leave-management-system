@@ -103,10 +103,7 @@ public class LeaveApprovalService {
             throw new BusinessRuleException("You cannot review your own leave request");
         }
 
-        boolean applicantIsManager = ROLE_MANAGER.equals(applicant.getRole().getRoleName());
-        boolean allowed = applicantIsManager
-                ? isAdmin(approver)
-                : isManagerOf(approver, applicant);
+        boolean allowed = (isAdmin(approver) && isManager(applicant)) || isManagerOf(approver, applicant);
 
         if (!allowed) {
             throw new AccessDeniedException("You are not allowed to review this request");
@@ -120,5 +117,9 @@ public class LeaveApprovalService {
 
     private boolean isAdmin(Employee employee) {
         return ROLE_ADMIN.equals(employee.getRole().getRoleName());
+    }
+
+    private boolean isManager(Employee employee) {
+        return ROLE_MANAGER.equals(employee.getRole().getRoleName());
     }
 }

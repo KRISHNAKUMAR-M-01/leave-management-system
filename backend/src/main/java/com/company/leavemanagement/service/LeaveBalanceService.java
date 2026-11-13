@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class LeaveBalanceService {
@@ -51,7 +53,20 @@ public class LeaveBalanceService {
     @Transactional(readOnly = true)
     public List<LeaveBalanceResponse> getMyBalances(String email) {
         Employee employee = employeeRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Employe not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+
+        return leaveBalanceRepository
+                .findByEmployeeAndCalendarYear(employee, LocalDate.now().getYear())
+                .stream()
+                .map(LeaveBalanceResponse::from)
+                .sorted(Comparator.comparing(LeaveBalanceResponse::leaveTypeName))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaveBalanceResponse> getBalancesByEmployeeId(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + employeeId));
 
         return leaveBalanceRepository
                 .findByEmployeeAndCalendarYear(employee, LocalDate.now().getYear())
@@ -69,12 +84,18 @@ public class LeaveBalanceService {
         }
 
         List<LeaveType> leaveTypes = leaveTypeRepository.findAll();
-        List<LeaveBalance> newBalances = new ArrayList<>();
+        List<Employee> employees = employeeRepository.findActiveExcludingRole(ROLE_ADMIN);
 
-        for (Employee employee : employeeRepository.findActiveExcludingRole(ROLE_ADMIN)) {
+        Set<String> existing = leaveBalanceRepository.findAllByCalendarYear(year)
+                .stream()
+                .map(b -> b.getEmployee().getId() + "_" + b.getLeaveType().getId())
+                .collect(Collectors.toSet());
+
+        List<LeaveBalance> newBalances = new ArrayList<>();
+        for (Employee employee : employees) {
             for (LeaveType leaveType : leaveTypes) {
-                boolean exists = leaveBalanceRepository.existsByEmployeeAndLeaveTypeAndCalendarYear(employee, leaveType, year);
-                if (!exists) {
+                String key = employee.getId() + "_" + leaveType.getId();
+                if (!existing.contains(key)) {
                     newBalances.add(new LeaveBalance(year, leaveType.getDaysPerYear(), employee, leaveType));
                 }
             }

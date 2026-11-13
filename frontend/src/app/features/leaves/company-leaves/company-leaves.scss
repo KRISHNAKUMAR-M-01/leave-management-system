@@ -1,0 +1,478 @@
+:host {
+  display: block;
+}
+
+.page-header {
+  margin-bottom: var(--space-3);
+
+  h1 {
+    margin: 0;
+    font-size: var(--font-size-h1);
+  }
+
+  .caption {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+  }
+}
+
+/* ── Metric Cards ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+
+  &.icon-indigo {
+    background: #e0e7ff;
+    color: #4f46e5;
+  }
+  &.icon-green {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  &.icon-amber {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  &.icon-rose {
+    background: #ffe4e6;
+    color: #e11d48;
+  }
+}
+
+.stat-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* ── Employee Balance Audit Card ── */
+.card {
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+
+  &.mb {
+    margin-bottom: var(--space-3);
+  }
+}
+
+.employee-balance-card {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+.balance-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: var(--space-2);
+}
+
+.emp-profile-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  .emp-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #4338ca;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .emp-title {
+    margin: 0;
+    font-size: var(--font-size-h3);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .caption {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+}
+
+.balance-overall-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  .overall-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .overall-val {
+    font-size: 0.95rem;
+    color: var(--color-text);
+
+    .overall-sub {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-left: 4px;
+    }
+  }
+}
+
+.clear-emp-btn {
+  font-size: 0.8rem;
+  height: 34px;
+  line-height: 34px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.balance-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+}
+
+.balance-item-card {
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .balance-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.825rem;
+
+    .b-type {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .b-days {
+      color: var(--color-text-muted);
+    }
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+
+    .progress-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 999px;
+      transition: width 300ms ease;
+    }
+  }
+
+  .b-remaining {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    align-self: flex-end;
+  }
+}
+
+/* ── Filter Bar ── */
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  .employee-search-field {
+    width: 100%;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+.autocomplete-option {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  padding: 4px 0;
+
+  .option-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text);
+  }
+
+  .option-dept {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+
+  mat-form-field {
+    flex: 1 1 160px;
+    min-width: 150px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+
+  button {
+    height: 48px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ── Table ── */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-table {
+  width: 100%;
+  min-width: 700px;
+  background: transparent;
+
+  tr.mat-mdc-row {
+    height: auto;
+    min-height: 60px;
+  }
+
+  td.mat-mdc-cell {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    vertical-align: middle;
+  }
+}
+
+.dates-header,
+.dates-cell {
+  white-space: nowrap;
+}
+
+.date-range {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-header,
+.status-cell {
+  min-width: 130px;
+}
+
+.emp-cell {
+  display: flex;
+  flex-direction: column;
+
+  .emp-name {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+}
+
+.reason-cell {
+  min-width: 120px;
+  max-width: 240px;
+}
+
+.reason-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: #e0e7ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.3;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #c7d2fe;
+  }
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+}
+
+.half-day-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #3730a3;
+  line-height: 1.4;
+}
+
+.status-cell-content {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rejection-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-error, #dc2626);
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: help;
+  line-height: 1.2;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--space-3);
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  .empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+    margin-bottom: var(--space-2);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: var(--font-size-h3);
+    color: var(--color-text);
+  }
+
+  .caption {
+    margin: 4px 0 0;
+    color: var(--color-text-muted);
+  }
+}
+
+@media (max-width: 768px) {
+  .balance-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .balance-overall-badge {
+    align-items: flex-start;
+  }
+}
+
