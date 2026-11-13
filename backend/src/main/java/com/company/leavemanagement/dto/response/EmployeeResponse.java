@@ -5,7 +5,6 @@ import com.company.leavemanagement.entity.Employee;
 import java.time.LocalDate;
 
 public record EmployeeResponse(
-
         Long id,
         String fullName,
         String email,
@@ -17,7 +16,8 @@ public record EmployeeResponse(
         String roleName,
         Long managerId,
         String managerName,
-        boolean active) {
+        boolean active,
+        String gender) {
 
     public static EmployeeResponse from(Employee employee) {
         Employee manager = employee.getManager();
@@ -33,6 +33,7 @@ public record EmployeeResponse(
                 employee.getRole().getRoleName(),
                 manager != null ? manager.getId() : null,
                 manager != null ? manager.getFullName() : null,
-                employee.isActive());
+                employee.isActive(),
+                employee.getGender());
     }
 }

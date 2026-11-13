@@ -11,6 +11,7 @@ export interface Employee {
   managerId: number | null;
   managerName: string | null;
   active: boolean;
+  gender: string;
 }
 
 export interface EmployeeFilter {

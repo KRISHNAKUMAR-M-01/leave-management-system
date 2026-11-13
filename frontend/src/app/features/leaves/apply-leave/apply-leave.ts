@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { HalfDaySession, LeaveBalance, LeaveType } from '../../../core/models/leave.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { LeaveService } from '../../../core/services/leave.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { isWeekend, toIsoDate } from '../../../core/utils/date';
@@ -42,6 +43,7 @@ import { getErrorMessage, getFieldErrors } from '../../../core/utils/error-messa
 export class ApplyLeave implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly leaveService = inject(LeaveService);
+  private readonly authService = inject(AuthService);
   private readonly notification = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -86,13 +88,18 @@ export class ApplyLeave implements OnInit {
   protected readonly requiresMedicalDocument = computed(() => {
     const typeId = this.formValue().leaveTypeId;
     const leaveType = this.leaveTypes().find((t) => t.id === typeId);
+    if (!leaveType) {
+      return false;
+    }
+    const name = leaveType.leaveTypeName.trim().toLowerCase();
     const days = this.previewDays();
-    return Boolean(
-      leaveType &&
-        leaveType.leaveTypeName.trim().toLowerCase() === 'sick' &&
-        days !== null &&
-        days >= 3,
-    );
+    if (name === 'sick' && days !== null && days >= 3) {
+      return true;
+    }
+    if (name === 'maternity') {
+      return true;
+    }
+    return false;
   });
 
   ngOnInit(): void {
@@ -228,8 +235,21 @@ export class ApplyLeave implements OnInit {
 
   private loadReferenceData(): void {
     this.loadingReference.set(true);
+    const userGender = this.authService.currentUser()?.gender?.toUpperCase();
     this.leaveService.getLeaveTypes().subscribe({
-      next: (types) => this.leaveTypes.set(types),
+      next: (types) => {
+        const filtered = types.filter((t) => {
+          const name = t.leaveTypeName.trim().toUpperCase();
+          if (userGender === 'MALE' && name === 'MATERNITY') {
+            return false;
+          }
+          if (userGender === 'FEMALE' && name === 'PATERNITY') {
+            return false;
+          }
+          return true;
+        });
+        this.leaveTypes.set(filtered);
+      },
       error: (error: unknown) => this.notification.error(getErrorMessage(error)),
     });
     this.loadBalances(() => this.loadingReference.set(false));

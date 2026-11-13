@@ -15,6 +15,7 @@
     <div class="detail-row"><span class="label">Department</span><span>{{ employee.departmentName }}</span></div>
     <div class="detail-row"><span class="label">Designation</span><span>{{ employee.designation }}</span></div>
     <div class="detail-row"><span class="label">Role</span><span>{{ employee.roleName }}</span></div>
+    <div class="detail-row"><span class="label">Gender</span><span>{{ employee.gender || 'Unspecified' }}</span></div>
     <div class="detail-row"><span class="label">Joining Date</span><span>{{ employee.joiningDate | date:'mediumDate' }}</span></div>
     <div class="detail-row">
       <span class="label">Reporting Manager</span>

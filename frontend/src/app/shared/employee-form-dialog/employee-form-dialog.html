@@ -72,6 +72,15 @@
         </mat-form-field>
 
         <mat-form-field>
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender">
+                @for (gender of genders; track gender) {
+                <mat-option [value]="gender">{{ gender }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
             <mat-label>Joining date</mat-label>
             <input matInput [matDatepicker]="joiningPicker" formControlName="joiningDate" />
             <mat-datepicker-toggle matIconSuffix [for]="joiningPicker" />

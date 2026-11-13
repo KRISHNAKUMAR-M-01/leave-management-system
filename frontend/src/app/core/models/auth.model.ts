@@ -10,6 +10,7 @@ export interface LoginResponse {
   fullName: string;
   email: string;
   role: Role;
+  gender?: string;
 }
 
 export const ROLE_LABELS: Record<Role, string> = {

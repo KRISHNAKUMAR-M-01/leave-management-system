@@ -55,12 +55,7 @@ public class LeaveBalanceService {
         Employee employee = employeeRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
-        return leaveBalanceRepository
-                .findByEmployeeAndCalendarYear(employee, LocalDate.now().getYear())
-                .stream()
-                .map(LeaveBalanceResponse::from)
-                .sorted(Comparator.comparing(LeaveBalanceResponse::leaveTypeName))
-                .toList();
+        return getFilteredBalancesForEmployee(employee);
     }
 
     @Transactional(readOnly = true)
@@ -68,9 +63,25 @@ public class LeaveBalanceService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + employeeId));
 
+        return getFilteredBalancesForEmployee(employee);
+    }
+
+    private List<LeaveBalanceResponse> getFilteredBalancesForEmployee(Employee employee) {
+        String gender = employee.getGender() != null ? employee.getGender().toUpperCase().trim() : "UNSPECIFIED";
+
         return leaveBalanceRepository
                 .findByEmployeeAndCalendarYear(employee, LocalDate.now().getYear())
                 .stream()
+                .filter(balance -> {
+                    String typeName = balance.getLeaveType().getLeaveTypeName().trim().toUpperCase();
+                    if ("MALE".equals(gender) && "MATERNITY".equals(typeName)) {
+                        return false;
+                    }
+                    if ("FEMALE".equals(gender) && "PATERNITY".equals(typeName)) {
+                        return false;
+                    }
+                    return true;
+                })
                 .map(LeaveBalanceResponse::from)
                 .sorted(Comparator.comparing(LeaveBalanceResponse::leaveTypeName))
                 .toList();

@@ -68,6 +68,9 @@ public class EmployeeService {
                 department,
                 role
                 );
+        if (request.gender() != null && !request.gender().isBlank()) {
+            employee.setGender(request.gender());
+        }
         employee.assignManager(manager);
 
         Employee savedEmployee = employeeRepository.save(employee);
@@ -99,6 +102,9 @@ public class EmployeeService {
                 request.joiningDate(),
                 department,
                 role);
+        if (request.gender() != null && !request.gender().isBlank()) {
+            employee.setGender(request.gender());
+        }
         employee.assignManager(manager);
 
         return EmployeeResponse.from(employee);

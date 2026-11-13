@@ -40,6 +40,7 @@ export class EmployeeFormDialog implements OnInit {
 
   protected readonly isEditMode = this.data.employee !== null;
   protected readonly roles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+  protected readonly genders = ['MALE', 'FEMALE', 'OTHER'];
 
   protected readonly departments = signal<Department[]>([]);
   protected readonly managers = signal<Employee[]>([]);
@@ -62,6 +63,7 @@ export class EmployeeFormDialog implements OnInit {
     designation: ['', [Validators.required, Validators.maxLength(50)]],
     joiningDate: this.formBuilder.control<Date | null>(null, Validators.required),
     roleName: this.formBuilder.control<string | null>(null, Validators.required),
+    gender: ['MALE', [Validators.required]],
     managerId: this.formBuilder.control<number | null>(null),
   });
 
@@ -95,6 +97,7 @@ export class EmployeeFormDialog implements OnInit {
       designation: employee.designation,
       joiningDate: parseLocalDate(employee.joiningDate),
       roleName: employee.roleName,
+      gender: employee.gender || 'MALE',
       managerId: employee.managerId,
     });
   }
@@ -134,6 +137,7 @@ export class EmployeeFormDialog implements OnInit {
       designation: value.designation.trim(),
       joiningDate: toIsoDate(value.joiningDate!),
       roleName: value.roleName!,
+      gender: value.gender,
       managerId: value.managerId,
       ...(this.isEditMode ? {} : { password: value.password }),
     };

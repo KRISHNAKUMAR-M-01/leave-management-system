@@ -1,12 +1,17 @@
 package com.company.leavemanagement.entity;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "employees")
-public class Employee extends BaseEntity{
+public class Employee extends BaseEntity {
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -41,7 +46,11 @@ public class Employee extends BaseEntity{
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
-    protected Employee() {}
+    @Column(name = "gender", nullable = false, length = 20)
+    private String gender = "UNSPECIFIED";
+
+    protected Employee() {
+    }
 
     public Employee(String fullName, String email, String passwordHash, String phone, String designation, LocalDate joiningDate, Department department, Role role) {
         this.fullName = fullName;
@@ -98,7 +107,7 @@ public class Employee extends BaseEntity{
         return manager;
     }
 
-    public void updateDetails(String fullName, String email, String phone, String designation, LocalDate joiningDate,  Department department, Role role) {
+    public void updateDetails(String fullName, String email, String phone, String designation, LocalDate joiningDate, Department department, Role role) {
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
@@ -114,6 +123,14 @@ public class Employee extends BaseEntity{
 
     public void activate() {
         this.active = true;
+    }
+
+        public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = (gender != null && !gender.isBlank()) ? gender.toUpperCase().trim() : "UNSPECIFIED";
     }
 
 }

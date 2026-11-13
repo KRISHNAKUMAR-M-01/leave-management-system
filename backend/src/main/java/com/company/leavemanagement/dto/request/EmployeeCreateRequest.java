@@ -41,5 +41,7 @@ public record EmployeeCreateRequest(
         @Pattern(regexp = "ADMIN|MANAGER|EMPLOYEE", message = "Role must be ADMIN, MANAGER or EMPLOYEE")
         String roleName,
 
-        Long managerId) {
+        Long managerId,
+
+        String gender) {
 }
